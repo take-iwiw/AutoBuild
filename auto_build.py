@@ -3,7 +3,8 @@
 
 import commands
 import datetime
-import sys
+import sys, os
+import shutil
 
 ### settings
 git_url = 'https://github.com/take-iwiw/AutoBuild.git'
@@ -16,12 +17,11 @@ code_dir = ''		# source code cloned from GitHub comes here
 
 def get_source_code():
 	global code_dir
-	work_dir = './work'
+	code_dir = './work'
 	if len(sys.argv) > 1:
-		work_dir = sys.argv[1]
-	if work_dir[-1].count('/') == 0:
-		work_dir += '/'
-	code_dir = work_dir + 'code_dir'
+		code_dir = sys.argv[1]
+	if os.path.exists(code_dir):
+		shutil.rmtree(code_dir)
 	commands.getoutput('git clone ' + git_url + ' ' + code_dir)
 
 def create_log_dir():
@@ -64,10 +64,12 @@ def main():
 		get_source_code()
 	create_log_dir()
 	run_all_build()
+	if os.path.exists(code_dir):
+		shutil.rmtree(code_dir)
 
 if __name__ == '__main__':
 	main()
 
-# python auto_build.py [work_dir] [code_dir]
-# work_dir: git clone用のワーキングディレクトリ。未指定時は'./code_dir'
+# python auto_build.py [cloning_code_dir] [existing_code_dir]
+# cloning_code_dir: git cloneのダウンロードディレクトリ
 # code_dir: ソースコードのディレクトリ。未指定時はgit cloneする

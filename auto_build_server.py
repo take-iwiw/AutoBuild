@@ -6,13 +6,11 @@ import datetime
 from bottle import route, run, request, HTTPResponse, template, static_file, request
 import zipfile
 
-
-temp_dir = './temp/'
-project_name ='projects'
+temp_dir = './uploaded/'
 
 @route('/run', method='GET')
 def entry_run():
-	work_dir = 'manual_' + datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+	work_dir = 'work_manual_' + datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
 	subprocess.Popen('python  auto_build.py ' + work_dir, shell=True)
 	return 'Build started'
 
@@ -37,7 +35,7 @@ def do_upload():
 
 	with zipfile.ZipFile(temp_dir + file_name) as existing_zip:
 		existing_zip.extractall(temp_dir + file_name + '_')
-
+	os.remove(temp_dir + file_name)
 	subprocess.Popen('python auto_build.py dummy ' + temp_dir + file_name + '_', shell=True)
 
 	return 'Upload OK. Build started'
@@ -53,3 +51,8 @@ def main():
 
 if __name__ == '__main__':
 	main()
+
+
+# python auto_build_server.py
+# 192.168.1.89:8080/run			# build with the latest code on Git
+# 192.168.1.89:8080/upload		# build with the uploaded code
